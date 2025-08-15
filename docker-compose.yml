@@ -1,0 +1,35 @@
+services:
+  event-db:
+    image: mongo
+    container_name: event-db
+    environment:
+      MONGO_INITDB_DATABASE: event_db
+      MONGO_INITDB_ROOT_USERNAME: saurabh
+      MONGO_INITDB_ROOT_PASSWORD: saurabh123
+    ports:
+      - "6010:27017"
+    volumes:
+      - event-db-data:/data/db
+    networks:
+      - microservices-net
+
+  user-db:
+    image: postgres
+    container_name: user-db
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: saurabh
+      POSTGRES_PASSWORD: saurabh123
+    ports:
+      - "6020:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+volumes:
+  event-db-data:
+  user-db-data:
+
+networks:
+  microservices-net:
