@@ -1,0 +1,52 @@
+# Maven / Gradle build
+target/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+*.out
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Spring Boot specific
+*.pid
+
+# Temporary files
+tmp/
+*.tmp
+
+# Test reports
+test-output/
+surefire-reports/
+failsafe-reports/
+
+# Node (if frontend is in repo)
+node_modules/
+dist/
+
+# Docker
+*.env
+docker-compose.override.yml
+
+# Redis / Mongo / Postgres data (if running locally)
+data/
