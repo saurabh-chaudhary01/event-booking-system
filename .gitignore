@@ -1,0 +1,62 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.log
+
+### Spring Boot ###
+/**/target/
+/**/build/
+/**/.mvn/
+/**/.gradle/
+/**/.idea/
+/**/.project
+/**/.classpath
+/**/.settings/
+/**/.factorypath
+/**/.sts4-cache
+
+### Gradle ###
+.gradle/
+/**/out/
+/**/build/
+
+### Maven ###
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+
+### Logs ###
+/**/logs/
+/**/*.log
+/**/*.out
+/**/hs_err_pid*
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+
+### Docker ###
+/**/.docker/
+/**/docker-compose.override.yml
+
+### Node (if frontend exists in monorepo) ###
+/**/node_modules/
+/**/dist/
+/**/build/
+
+### IntelliJ IDEA ###
+.idea/
+/*.iws
+*.ipr
+*.iml
+
+### VSCode ###
+.vscode/
+.history/
+
+### Other ###
+/**/.env
+/**/.env.*
+/**/.DS_Store
