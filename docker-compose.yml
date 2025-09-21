@@ -1,0 +1,97 @@
+services:
+  postgres-user:
+    image: postgres:15
+    container_name: postgres-user
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user123
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - booking-net
+
+  postgres-event:
+    image: postgres:15
+    container_name: postgres-event
+    environment:
+      POSTGRES_DB: eventdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user123
+    ports:
+      - "5434:5432"
+    volumes:
+      - event_data:/var/lib/postgresql/data
+    networks:
+      - booking-net
+
+  postgres-order:
+    image: postgres:15
+    container_name: postgres-order
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user123
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    networks:
+      - booking-net
+
+  redis:
+    image: redis:7
+    container_name: redis-ticketlock
+    ports:
+      - "6379:6379"
+    volumes:
+      - ticketlock_data:/data
+    networks:
+      - booking-net
+
+  elasticsearch:
+    image: bitnami/elasticsearch:latest
+    container_name: elasticsearch-search
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - booking-net
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    volumes:
+     - kafka_data:/bitnami/kafka
+    networks:
+      - booking-net
+
+volumes:
+  user_data:
+  event_data:
+  order_data:
+  ticketlock_data:
+  es_data:
+  kafka_data:
+
+networks:
+  booking-net:
