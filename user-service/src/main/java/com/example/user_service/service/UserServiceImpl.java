@@ -17,7 +17,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service
@@ -82,10 +83,11 @@ public class UserServiceImpl implements UserService {
                 .orElseGet(UserVerificationEntity::new);
 
         String token = UUID.randomUUID().toString();
+        Instant expiresAt = Instant.now().plus(2, ChronoUnit.HOURS);
 
         verificationEntity.setUserId(userId);
         verificationEntity.setToken(token);
-        verificationEntity.setExpiresAt(LocalDateTime.now().plusHours(2));
+        verificationEntity.setExpiresAt(expiresAt);
 
         // save to db
         verificationRepository.save(verificationEntity);
@@ -139,7 +141,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // token expired
-        if (userVerificationEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (userVerificationEntity.getExpiresAt().isBefore(Instant.now())) {
             log.info("token is expired");
             verificationRepository.delete(userVerificationEntity);
             return false;

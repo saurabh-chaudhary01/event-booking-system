@@ -3,7 +3,7 @@ package com.example.user_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -24,5 +24,5 @@ public class UserVerificationEntity {
     private String token;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 }
