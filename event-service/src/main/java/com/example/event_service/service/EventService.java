@@ -1,9 +1,10 @@
 package com.example.event_service.service;
 
-import com.example.event_service.dto.EventDTO;
+import com.example.event_service.dto.EventRequestDTO;
+import com.example.event_service.dto.EventResponseDTO;
 
 public interface EventService {
-    EventDTO createEvent(EventDTO eventDTO);
+    EventResponseDTO createEvent(EventRequestDTO eventDTO);
 
-    EventDTO findEventById(long eventId);
+    EventResponseDTO findEventById(long eventId);
 }

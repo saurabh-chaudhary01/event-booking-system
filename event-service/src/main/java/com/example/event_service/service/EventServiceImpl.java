@@ -1,7 +1,7 @@
 package com.example.event_service.service;
 
-import com.example.event_service.dto.EventDTO;
-import com.example.event_service.dto.SeatDTO;
+import com.example.event_service.dto.EventRequestDTO;
+import com.example.event_service.dto.EventResponseDTO;
 import com.example.event_service.entity.EventEntity;
 import com.example.event_service.entity.SeatEntity;
 import com.example.event_service.repository.EventRepository;
@@ -16,12 +16,8 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
-    private static EventDTO convertToEventDTO(EventEntity eventEntity) {
-        List<SeatDTO> seats = eventEntity.getSeats().stream()
-                .map(EventServiceImpl::convertToSeatDTO)
-                .toList();
-
-        return EventDTO.builder()
+    private static EventResponseDTO convertToEventDTO(EventEntity eventEntity) {
+        return EventResponseDTO.builder()
                 .id(eventEntity.getId())
                 .title(eventEntity.getTitle())
                 .description(eventEntity.getDescription())
@@ -29,24 +25,14 @@ public class EventServiceImpl implements EventService {
                 .startTime(eventEntity.getStartTime())
                 .endTime(eventEntity.getEndTime())
                 .location(eventEntity.getLocation())
-                .seats(seats)
                 .createdAt(eventEntity.getCreatedAt())
                 .updatedAt(eventEntity.getUpdatedAt())
                 .build();
     }
 
-    private static SeatDTO convertToSeatDTO(SeatEntity seatEntity) {
-        return SeatDTO.builder()
-                .id(seatEntity.getId())
-                .seatNumber(seatEntity.getSeatNumber())
-                .status(seatEntity.getStatus())
-                .price(seatEntity.getPrice())
-                .build();
-    }
-
     @Override
     @Transactional
-    public EventDTO createEvent(EventDTO eventDTO) {
+    public EventResponseDTO createEvent(EventRequestDTO eventDTO) {
         List<SeatEntity> seats = eventDTO.getSeats().stream()
                 .map(seatDTO -> SeatEntity.builder()
                         .seatNumber(seatDTO.getSeatNumber())
@@ -73,7 +59,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDTO findEventById(long eventId) {
+    public EventResponseDTO findEventById(long eventId) {
         return eventRepository
                 .findById(eventId).map(EventServiceImpl::convertToEventDTO)
                 .orElse(null);

@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SeatDTO {
-    private Long id;
+public class SeatRequestDTO {
     private Integer seatNumber;
     private String status;
     private Double price;

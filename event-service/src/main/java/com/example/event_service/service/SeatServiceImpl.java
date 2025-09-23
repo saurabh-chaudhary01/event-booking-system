@@ -1,5 +1,6 @@
 package com.example.event_service.service;
 
+import com.example.event_service.dto.SeatResponseDTO;
 import com.example.event_service.entity.SeatEntity;
 import com.example.event_service.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -20,6 +22,27 @@ public class SeatServiceImpl implements SeatService {
 
     private final StringRedisTemplate redisTemplate;
     private final SeatRepository seatRepository;
+
+    private static SeatResponseDTO convertToSeatDTO(SeatEntity seatEntity) {
+        return SeatResponseDTO.builder()
+                .id(seatEntity.getId())
+                .seatNumber(seatEntity.getSeatNumber())
+                .status(seatEntity.getStatus())
+                .price(seatEntity.getPrice())
+                .build();
+    }
+
+    @Override
+    public List<SeatResponseDTO> getSeatsByEventId(long eventId) {
+        return seatRepository.findByEventId(eventId)
+                .stream()
+                .map(seatEntity -> {
+                    SeatResponseDTO seatDTO = convertToSeatDTO(seatEntity);
+                    if (isSeatReserved(seatDTO.getId())) seatDTO.setStatus("RESERVED");
+                    return seatDTO;
+                })
+                .toList();
+    }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)

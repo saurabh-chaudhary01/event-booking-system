@@ -6,13 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDTO {
+public class EventResponseDTO {
     private Long id;
     private String title;
     private String description;
@@ -20,7 +19,6 @@ public class EventDTO {
     private Instant startTime;
     private Instant endTime;
     private String location;
-    private List<SeatDTO> seats;
     private Instant createdAt;
     private Instant updatedAt;
 }
