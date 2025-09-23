@@ -1,17 +1,29 @@
 package com.example.notification_service.consumer;
 
-import com.example.kafka_configs.config.App_Constant;
+import com.example.kafka_configs.config.TopicLiteral;
+import com.example.kafka_configs.event.UserDomainEvent;
 import com.example.kafka_configs.event.UserVerifyEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Service
+@Component
+@RequiredArgsConstructor
 public class UserConsumerService {
+    private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = App_Constant.USER_VERIFY_TOPIC)
-    public void userVerifyEvent(UserVerifyEvent event) {
-        log.info("UserCreatedEvent {}", event);
+    @KafkaListener(topics = TopicLiteral.USER_TOPIC)
+    public <T> void userEventListener(UserDomainEvent<T> event) {
+        switch (event.getEventType()) {
+            case USER_VERIFY -> userVerifyEvent(event);
+        }
+    }
+
+    private <T> void userVerifyEvent(UserDomainEvent<T> event) {
+        UserVerifyEvent payload = objectMapper.convertValue(event.getPayload(), UserVerifyEvent.class);
+        log.info("user verify payload {}", payload);
     }
 }

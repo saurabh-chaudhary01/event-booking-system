@@ -1,6 +1,5 @@
 package com.example.user_service.service;
 
-import com.example.kafka_configs.config.App_Constant;
 import com.example.kafka_configs.event.UserVerifyEvent;
 import com.example.user_service.dto.UserCreateDTO;
 import com.example.user_service.dto.UserResponseDTO;
@@ -8,12 +7,12 @@ import com.example.user_service.entity.UserEntity;
 import com.example.user_service.entity.UserVerificationEntity;
 import com.example.user_service.exception.DuplicateEmailException;
 import com.example.user_service.exception.UserNotFoundException;
+import com.example.user_service.producer.NotificationProducer;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.repository.UserVerificationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserVerificationRepository verificationRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final NotificationProducer notificationProducer;
     private final BCryptPasswordEncoder passwordEncoder;
 
 
@@ -79,6 +78,9 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Invalid userId " + userId));
 
+        // account is already verified
+        if (userEntity.isEmailVerified()) return;
+
         UserVerificationEntity verificationEntity = verificationRepository.findByUserId(userId)
                 .orElseGet(UserVerificationEntity::new);
 
@@ -95,14 +97,14 @@ public class UserServiceImpl implements UserService {
         log.info("userId {}, token {}", userEntity.getId(), token);
 
         // produce notification
-        UserVerifyEvent event = UserVerifyEvent.builder()
+        UserVerifyEvent payload = UserVerifyEvent.builder()
                 .userId(userEntity.getId())
                 .name(userEntity.getFullName())
                 .email(userEntity.getEmail())
                 .token(token)
                 .build();
 
-        kafkaTemplate.send(App_Constant.USER_VERIFY_TOPIC, event);
+        notificationProducer.userVerifyEvent(payload);
     }
 
     @Override
@@ -126,30 +128,34 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean verifyUserEmail(long userId, String token) {
         UserEntity userEntity = userRepository.findById(userId).orElse(null);
-        UserVerificationEntity userVerificationEntity = verificationRepository.findByUserId(userId).orElse(null);
+        UserVerificationEntity verificationEntity = verificationRepository.findByUserId(userId).orElse(null);
 
-        // invalid userId or token
-        if (userEntity == null || userVerificationEntity == null) {
-            log.info("invalid userId {} or token {}", userId, token);
-            return false;
-        }
+        // invalid userId
+        if (userEntity == null) return false;
+
+        // account is already verified
+        if (userEntity.isEmailVerified()) return true;
+
+        // verification entity is not present
+        if (verificationEntity == null) return false;
 
         // invalid token
-        if (!userVerificationEntity.getToken().equals(token)) {
-            log.info("token mismatch; actual {}, expected {}", token, userVerificationEntity.getToken());
+        if (!verificationEntity.getToken().equals(token)) {
+            log.info("token mismatch; actual {}, expected {}", token, verificationEntity.getToken());
             return false;
         }
 
         // token expired
-        if (userVerificationEntity.getExpiresAt().isBefore(Instant.now())) {
+        if (verificationEntity.getExpiresAt().isBefore(Instant.now())) {
             log.info("token is expired");
-            verificationRepository.delete(userVerificationEntity);
+            verificationRepository.delete(verificationEntity);
             return false;
         }
 
         log.info("account verified, userId {}", userEntity.getId());
         userEntity.setEmailVerified(true);
-        verificationRepository.delete(userVerificationEntity);
+
+        verificationRepository.delete(verificationEntity);
 
         return true;
     }

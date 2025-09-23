@@ -69,7 +69,7 @@ public class UserEntity {
         this.updatedAt = Instant.now();
     }
 
-    @PostUpdate
+    @PreUpdate
     protected void onUpdate() {
         this.updatedAt = Instant.now();
     }
