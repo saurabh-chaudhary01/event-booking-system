@@ -39,6 +39,7 @@ public class EventEntity {
 
     @Column(nullable = false)
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "event_id")
     private List<SeatEntity> seats = new ArrayList<>();
 
     private Instant createdAt;
