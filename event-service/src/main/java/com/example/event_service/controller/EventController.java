@@ -1,5 +1,6 @@
 package com.example.event_service.controller;
 
+import com.example.event_service.dto.BookSeatDTO;
 import com.example.event_service.dto.EventRequestDTO;
 import com.example.event_service.dto.EventResponseDTO;
 import com.example.event_service.dto.SeatResponseDTO;
@@ -42,5 +43,32 @@ public class EventController {
 
         EventResponseDTO response = eventService.createEvent(eventDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/reserve-seats/{seatId}")
+    public ResponseEntity<String> reserveSeat(
+            @PathVariable("seatId") long seatId,
+            @RequestHeader("X-User-Id") long userId
+    ) {
+        boolean success = seatService.reserveSeat(seatId, userId);
+
+        if (!success) {
+            return ResponseEntity.badRequest().body("seat is booked or currently reserved");
+        }
+
+        return ResponseEntity.accepted().body("seat reserved successfully");
+    }
+
+    @PostMapping("/book-seats")
+    public ResponseEntity<String> bookSeat(
+            @RequestBody BookSeatDTO dto,
+            @RequestHeader("X-User-Id") long userId) {
+        boolean status = seatService.bookSeat(dto.getSeatId(), userId);
+
+        if (!status) {
+            return ResponseEntity.badRequest().body("seat is booked or currently reserved");
+        }
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("seat booked successfully");
     }
 }
