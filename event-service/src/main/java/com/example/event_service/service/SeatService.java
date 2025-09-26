@@ -10,7 +10,7 @@ public interface SeatService {
 
     boolean bookSeat(long seatId, long userId);
 
-    public boolean isSeatReserved(long seatId);
+    boolean isSeatReserved(long seatId);
 
     List<SeatResponseDTO> getSeatsByEventId(long eventId);
 }
