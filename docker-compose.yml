@@ -1,4 +1,21 @@
 services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "9000:3000"
+    environment:
+      DB_HOST: postgres-user
+      DB_PORT: 5432
+      DB_NAME: userdb
+      DB_USER: user
+      DB_PASSWORD: user123
+      JWT_SEC_KEY: "7wFnSYh7KvpLqrU2hmvodZfQm9pM/QKCUC19hcWY8Hc="
+    depends_on:
+      - postgres-user
+    networks:
+      - booking-net
+
   postgres-user:
     image: postgres:15
     container_name: postgres-user
@@ -81,7 +98,7 @@ services:
       - "9092:9092"
       - "9093:9093"
     volumes:
-     - kafka_data:/bitnami/kafka
+      - kafka_data:/bitnami/kafka
     networks:
       - booking-net
 
