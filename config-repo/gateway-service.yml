@@ -17,3 +17,10 @@ spring:
           - Path=/api/events/**
         filters:
           - StripPrefix=1
+
+jwt:
+  uri: http://localhost:9000/api/auth/validate
+
+gateway:
+  whitelist:
+    - /api/users/register
