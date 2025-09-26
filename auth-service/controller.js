@@ -72,9 +72,6 @@ const validateController = (req, res) => {
       return res.sendStatus(401);
     }
 
-    res.setHeader("x-user-id", userId);
-    res.setHeader("x-user-role", role);
-
     return res.json({
       valid: true,
       userId: userId,
